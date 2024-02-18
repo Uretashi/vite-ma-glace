@@ -1,29 +1,53 @@
 <script setup lang="ts">
-import "leaflet/dist/leaflet.css"
-import { LIcon, LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet"
-import type IceCreamShop from "@/models/IceCreamShop";
-import clickedStoreId from "@/stores/clickedStoreId";
+import { ref, watch } from "vue";
+import "leaflet/dist/leaflet.css";
+import { LIcon, LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import { useShopsStore } from "@/stores/shops";
 // need to import the marker as "@/assets/..." not working in icon-url=""
-import iceCreamMarker from "@/assets/ice-cream-marker.png"
+import iceCreamMarker from "@/assets/ice-cream-marker.png";
 
-const defaultCenter = [46.453, 2.219]
-const defaultZoom = 6
-const clickedStoreIdStore = clickedStoreId()
+const defaultCenter = ref([46.453, 2.219]);
+const defaultZoom = ref(6);
+const shopsStore = useShopsStore();
 
-defineProps<{ stores: IceCreamShop[] }>()
+watch(
+  () => shopsStore.selectedShop,
+  () => {
+    if (!shopsStore.selectedShop) return;
+    defaultCenter.value = shopsStore.selectedShop.coordinates;
+  }
+);
 </script>
 
 <template>
-  <div>
-    <l-map ref="map" v-model:zoom="defaultZoom" v-model:center="defaultCenter" :useGlobalLeaflet="false">
-      <l-tile-layer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base" name="Ice cream map" />
-      <l-marker v-for="store in stores" :key="store.id" :lat-lng="store.coordinates" >
-        <l-icon :icon-url="iceCreamMarker" :icon-size="clickedStoreIdStore.id == store.id ? [50, 50] : [30, 30]"></l-icon>
+  <div class="ice-cream-map">
+    <l-map
+      ref="map"
+      v-model:zoom="defaultZoom"
+      :min-zoom="6"
+      :max-zoom="16"
+      v-model:center="defaultCenter"
+      :useGlobalLeaflet="false"
+      :max-bounds="[
+        [50.241308, -6.141318],
+        [41.191433, 10.343899],
+      ]"
+    >
+      <l-tile-layer
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        layer-type="base"
+        name="Ice cream map"
+      />
+      <l-marker
+        v-for="shop in shopsStore.shops"
+        :key="shop.id"
+        :lat-lng="shop.coordinates"
+      >
+        <l-icon
+          :icon-url="iceCreamMarker"
+          :icon-size="shopsStore.selectedId === shop.id ? [50, 50] : [30, 30]"
+        ></l-icon>
       </l-marker>
     </l-map>
   </div>
 </template>
-
-<style scoped>
-
-</style>
