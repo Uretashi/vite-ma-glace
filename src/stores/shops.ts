@@ -8,12 +8,12 @@ import type { IceCreamShop } from "@/models/IceCreamShop";
  */
 export const useShopsStore = defineStore("store-id", {
   state: () => ({
-    shops: [...iceCreamShopData],
+    shops: iceCreamShopData,
     selectedId: null as number | null,
   }),
   getters: {
-    selectedShop(): IceCreamShop | null {
-      return this.shops.find((shop) => shop.id === this.selectedId) ?? null;
+    selectedShop(): IceCreamShop | undefined {
+      return this.shops.find((shop) => shop.id === this.selectedId);
     },
   },
   actions: {

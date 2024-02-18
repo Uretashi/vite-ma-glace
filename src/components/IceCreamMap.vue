@@ -14,8 +14,7 @@ watch(
   () => shopsStore.selectedShop,
   () => {
     if (!shopsStore.selectedShop) return;
-
-    defaultCenter.value = [...shopsStore.selectedShop.coordinates];
+    defaultCenter.value = shopsStore.selectedShop.coordinates;
   }
 );
 </script>
@@ -26,7 +25,7 @@ watch(
       ref="map"
       v-model:zoom="defaultZoom"
       :min-zoom="6"
-      :max-zoom="8"
+      :max-zoom="16"
       v-model:center="defaultCenter"
       :useGlobalLeaflet="false"
       :max-bounds="[
